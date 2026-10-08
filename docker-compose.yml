@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  olimpo_frontend:
+    build: .
+    restart: always
+    ports:
+      - "127.0.0.1:3002:80"
