@@ -7,7 +7,7 @@ import {
   Clock,
   Image as ImageIcon,
   Pencil,
-  FolderOpen
+  FolderOpen,
 } from "lucide-react";
 import { useAuthStore } from "@/modules/auth/store/useAuthStore";
 
@@ -28,8 +28,12 @@ export const VehicleCard = ({
 
   // 1. SEPARAMOS LAS IMÁGENES DE LOS PDFs
   const documents = vehicle.documents || [];
-  const images = documents.filter((doc: any) => doc.fileType.startsWith("image/"));
-  const files = documents.filter((doc: any) => !doc.fileType.startsWith("image/"));
+  const images = documents.filter((doc: any) =>
+    doc.fileType.startsWith("image/"),
+  );
+  const files = documents.filter(
+    (doc: any) => !doc.fileType.startsWith("image/"),
+  );
 
   // Formatear fecha
   const date = new Date(
@@ -102,6 +106,11 @@ export const VehicleCard = ({
             {vehicle.power || "-"}
           </div>
 
+          <div className="col-span-1 text-zinc-500">Torque</div>
+          <div className="col-span-2 text-white font-medium text-right">
+            {vehicle.torque || "-"}
+          </div>
+
           <div className="col-span-1 text-zinc-500">Tracción</div>
           <div className="col-span-2 text-white font-medium text-right">
             {vehicle.traction || "-"}
@@ -113,9 +122,8 @@ export const VehicleCard = ({
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-3">
             Documentación Vinculada ({documents.length} archivos)
           </p>
-          
+
           <div className="space-y-2">
-            
             {/* 1. FILA DE ÁLBUM (Si hay imágenes vinculadas) */}
             {images.length > 0 && (
               <div
@@ -133,23 +141,25 @@ export const VehicleCard = ({
             )}
 
             {/* 2. LISTA DE PDFs (Ocupan el resto de los espacios) */}
-            {files.slice(0, images.length > 0 ? 2 : 3).map((doc: any, index: number) => (
-              <div
-                key={doc.id}
-                onClick={() => onViewDocument(files, index)}
-                className="flex items-center justify-between text-xs hover:bg-zinc-900/50 p-1.5 -mx-1.5 rounded-md cursor-pointer transition-colors group/doc"
-              >
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                  <span className="text-zinc-300 group-hover/doc:text-white truncate">
-                    {doc.title}
+            {files
+              .slice(0, images.length > 0 ? 2 : 3)
+              .map((doc: any, index: number) => (
+                <div
+                  key={doc.id}
+                  onClick={() => onViewDocument(files, index)}
+                  className="flex items-center justify-between text-xs hover:bg-zinc-900/50 p-1.5 -mx-1.5 rounded-md cursor-pointer transition-colors group/doc"
+                >
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    <span className="text-zinc-300 group-hover/doc:text-white truncate">
+                      {doc.title}
+                    </span>
+                  </div>
+                  <span className="text-zinc-600 shrink-0 ml-2">
+                    {(doc.fileSize / 1024 / 1024).toFixed(1)} MB
                   </span>
                 </div>
-                <span className="text-zinc-600 shrink-0 ml-2">
-                  {(doc.fileSize / 1024 / 1024).toFixed(1)} MB
-                </span>
-              </div>
-            ))}
+              ))}
 
             {/* MENSAJE DE ARCHIVOS RESTANTES */}
             {files.length > (images.length > 0 ? 2 : 3) && (
@@ -160,7 +170,9 @@ export const VehicleCard = ({
 
             {/* MENSAJE VACÍO */}
             {documents.length === 0 && (
-              <p className="text-xs text-zinc-600 italic">No hay archivos vinculados.</p>
+              <p className="text-xs text-zinc-600 italic">
+                No hay archivos vinculados.
+              </p>
             )}
           </div>
         </div>

@@ -53,6 +53,7 @@ export const AdminUploadPage = () => {
   const [vName, setVName] = useState("");
   const [vEngine, setVEngine] = useState("");
   const [vPower, setVPower] = useState("");
+  const [vTorque, setVTorque] = useState("");
   const [vTraction, setVTraction] = useState("");
   const [vCategoryId, setVCategoryId] = useState("");
   const [vCoverUrl, setVCoverUrl] = useState("");
@@ -172,6 +173,7 @@ export const AdminUploadPage = () => {
         engine: vEngine,
         power: vPower,
         traction: vTraction,
+        torque: vTorque,
         categoryId: vCategoryId,
         coverUrl: finalCoverUrl,
       });
@@ -209,6 +211,7 @@ export const AdminUploadPage = () => {
       setVName("");
       setVEngine("");
       setVPower("");
+      setVTorque("");
       setVTraction("");
       setVCategoryId("");
       setVCoverUrl("");
@@ -489,6 +492,20 @@ export const AdminUploadPage = () => {
                 value={vPower}
                 onChange={(e) => setVPower(e.target.value)}
                 placeholder="Ej. 280 HP @ 6,500 rpm"
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none"
+                disabled={isUploading}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-zinc-300 mb-2">
+                Torque
+              </label>
+              <input
+                type="text"
+                value={vTorque}
+                onChange={(e) => setVTorque(e.target.value)}
+                placeholder="Ej. 350 Nm @ 1,500 rpm"
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-white focus:border-red-600 outline-none"
                 disabled={isUploading}
               />
