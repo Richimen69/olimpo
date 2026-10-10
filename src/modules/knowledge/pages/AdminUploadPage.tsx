@@ -147,7 +147,8 @@ export const AdminUploadPage = () => {
       return alert("El nombre y la carpeta son obligatorios.");
 
     const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
-    if (!authUser.id) return alert("Error de sesión.");
+    if (!user || !user.id)
+      return alert("Error de sesión. Inicia sesión nuevamente.");
 
     try {
       setIsUploading(true);
