@@ -18,6 +18,7 @@ import {
   getDocuments,
   getCategoryById,
   deleteDocument,
+  deleteVehicle,
 } from "../services/knowledge.service";
 import { DocumentCard } from "../components/DocumentCard";
 import { DynamicIcon } from "@/shared/components/ui/DynamicIcon";
@@ -41,32 +42,32 @@ export const CategoryPage = () => {
     list: any[];
     index: number;
   } | null>(null);
-  useEffect(() => {
-    const loadData = async () => {
-      if (!categoryId) return;
-      setIsLoading(true);
-      try {
-        const [catData, docsData] = await Promise.all([
-          getCategoryById(categoryId),
-          getDocuments(categoryId),
-        ]);
+  const loadData = async () => {
+    if (!categoryId) return;
+    setIsLoading(true);
+    try {
+      const [catData, docsData] = await Promise.all([
+        getCategoryById(categoryId),
+        getDocuments(categoryId),
+      ]);
 
-        setCategory(catData);
-        setDocuments(docsData);
-        if (catData) {
-          saveToHistory({
-            id: catData.id,
-            name: catData.name,
-            icon: catData.icon || "Folder",
-            url: `/category/${catData.id}`,
-          });
-        }
-      } catch (error) {
-        console.error("Error cargando la categoría:", error);
-      } finally {
-        setIsLoading(false);
+      setCategory(catData);
+      setDocuments(docsData);
+      if (catData) {
+        saveToHistory({
+          id: catData.id,
+          name: catData.name,
+          icon: catData.icon || "Folder",
+          url: `/category/${catData.id}`,
+        });
       }
-    };
+    } catch (error) {
+      console.error("Error cargando la categoría:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
     loadData();
   }, [categoryId]);
 
@@ -272,7 +273,8 @@ export const CategoryPage = () => {
                 onEdit={() => setEditingVehicle(vehicle)}
                 onDelete={async (id) => {
                   if (window.confirm("¿Eliminar este vehículo?")) {
-                    console.log("Eliminar", id);
+                    await deleteVehicle(id);
+                    loadData();
                   }
                 }}
               />

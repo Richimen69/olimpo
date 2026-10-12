@@ -48,6 +48,9 @@ export const getVehiclesByCategory = async (categoryId: string) => {
 export const updateVehicle = async (id: string, data: any) => {
   return await fetchJSON(`${API_URL}/knowledge/vehicles/${id}`, "PUT", data);
 };
+export const deleteVehicle = async (id: string) => {
+  return await fetchJSON(`${API_URL}/knowledge/vehicles/${id}`, "DELETE");
+};
 export const getVehicles = async (categoryId?: string) => {
   const query = categoryId ? `?categoryId=${encodeURIComponent(categoryId)}` : '';
   return await fetchJSON(`${API_URL}/knowledge/vehicles${query}`, "GET");
