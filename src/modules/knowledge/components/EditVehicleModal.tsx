@@ -11,7 +11,6 @@ interface EditVehicleModalProps {
 
 export const EditVehicleModal = ({
   vehicle,
-  categoryDocuments,
   onClose,
   onSuccess,
 }: EditVehicleModalProps) => {
@@ -20,21 +19,8 @@ export const EditVehicleModal = ({
   const [power, setPower] = useState(vehicle.power || "");
   const [torque, setTorque] = useState(vehicle.torque || "");
   const [traction, setTraction] = useState(vehicle.traction || "");
-
-  // Guardamos los IDs de los documentos que están vinculados actualmente
-  const [selectedDocIds, setSelectedDocIds] = useState<string[]>(
-    vehicle.documents?.map((d: any) => d.id) || [],
-  );
-
+  const [urlImg, setUrlImg] = useState(vehicle.coverUrl || "");
   const [isSaving, setIsSaving] = useState(false);
-
-  const toggleDocument = (docId: string) => {
-    setSelectedDocIds((prev) =>
-      prev.includes(docId)
-        ? prev.filter((id) => id !== docId)
-        : [...prev, docId],
-    );
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +32,7 @@ export const EditVehicleModal = ({
         power,
         traction,
         torque,
-        documentIds: selectedDocIds,
+        coverUrl: urlImg,
       });
       onSuccess();
     } catch (error) {
@@ -130,47 +116,23 @@ export const EditVehicleModal = ({
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none"
               />
             </div>
-          </div>
-
-          {/* LISTA DE DOCUMENTOS PARA VINCULAR */}
-          <div className="border-t border-zinc-800 pt-6">
-            <h3 className="text-sm font-bold text-zinc-300 mb-3">
-              Vincular Documentos
-            </h3>
-            <p className="text-xs text-zinc-500 mb-4">
-              Selecciona los archivos de esta carpeta que pertenecen a este
-              vehículo.
-            </p>
-
-            <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-              {categoryDocuments.length === 0 ? (
-                <p className="text-sm text-zinc-600 italic">
-                  No hay documentos en esta carpeta.
-                </p>
-              ) : (
-                categoryDocuments.map((doc) => {
-                  const isSelected = selectedDocIds.includes(doc.id);
-                  return (
-                    <div
-                      key={doc.id}
-                      onClick={() => toggleDocument(doc.id)}
-                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${isSelected ? "bg-red-500/10 border-red-500/50" : "bg-zinc-900/50 border-zinc-800 hover:border-zinc-600"}`}
-                    >
-                      {isSelected ? (
-                        <CheckSquare className="w-5 h-5 text-red-500 shrink-0" />
-                      ) : (
-                        <Square className="w-5 h-5 text-zinc-600 shrink-0" />
-                      )}
-                      <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
-                      <span
-                        className={`text-sm truncate ${isSelected ? "text-white font-medium" : "text-zinc-400"}`}
-                      >
-                        {doc.title}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-zinc-400 mb-1">
+                Imagen de Portada
+              </label>
+              <input
+                type="text"
+                value={urlImg}
+                onChange={(e) => setUrlImg(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <img
+                src={urlImg}
+                alt="Portada"
+                className="w-full object-cover rounded-lg"
+              />
             </div>
           </div>
         </form>
