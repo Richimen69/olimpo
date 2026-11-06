@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { X, Loader2, FileText, CheckSquare, Square } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Loader2, ImageOff } from "lucide-react";
+import { toast } from "sonner";
 import { updateVehicle } from "../services/knowledge.service";
 
 interface EditVehicleModalProps {
@@ -21,6 +22,16 @@ export const EditVehicleModal = ({
   const [traction, setTraction] = useState(vehicle.traction || "");
   const [urlImg, setUrlImg] = useState(vehicle.coverUrl || "");
   const [isSaving, setIsSaving] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  // Esc cierra el modal (si no se está guardando)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isSaving) onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSaving, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,19 +47,23 @@ export const EditVehicleModal = ({
       });
       onSuccess();
     } catch (error) {
-      alert("Error al actualizar el vehículo");
+      toast.error("No se pudo guardar el vehículo. Intenta de nuevo.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      onMouseDown={(e) => e.target === e.currentTarget && !isSaving && onClose()}
+    >
       <div className="bg-[#0f0f0f] border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
         <div className="flex items-center justify-between p-6 border-b border-zinc-800">
           <h2 className="text-xl font-bold text-white">Editar Vehículo</h2>
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="text-zinc-500 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -123,16 +138,28 @@ export const EditVehicleModal = ({
               <input
                 type="text"
                 value={urlImg}
-                onChange={(e) => setUrlImg(e.target.value)}
+                onChange={(e) => {
+                  setUrlImg(e.target.value);
+                  setImgError(false);
+                }}
+                placeholder="https://..."
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2.5 text-white focus:border-red-500 outline-none"
               />
             </div>
             <div className="md:col-span-2">
-              <img
-                src={urlImg}
-                alt="Portada"
-                className="w-full object-cover rounded-lg"
-              />
+              {urlImg && !imgError ? (
+                <img
+                  src={urlImg}
+                  alt="Vista previa de la portada"
+                  onError={() => setImgError(true)}
+                  className="w-full max-h-64 object-cover rounded-lg"
+                />
+              ) : (
+                <div className="w-full h-40 rounded-lg border border-dashed border-zinc-800 bg-zinc-900/40 flex flex-col items-center justify-center gap-2 text-zinc-500 text-sm">
+                  <ImageOff className="w-6 h-6" />
+                  {imgError ? "No se pudo cargar la imagen. Revisa la URL." : "Sin imagen de portada"}
+                </div>
+              )}
             </div>
           </div>
         </form>
@@ -148,7 +175,7 @@ export const EditVehicleModal = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
+            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 cursor-pointer"
           >
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />

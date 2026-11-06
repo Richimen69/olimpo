@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, Folder, CarFront } from 'lucide-react';
+import { toast } from 'sonner';
 import { updateDocument, getSidebarMenu, getVehicles } from '../services/knowledge.service';
 
 const flattenTree = (nodes: any[], level = 0): any[] => {
@@ -30,6 +31,16 @@ export const EditDocumentModal = ({ document, onClose, onSuccess }: EditDocument
   
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+
+  // Esc cierra el modal (si no se está guardando)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isSaving) onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isSaving, onClose]);
 
   // Cargamos carpetas y vehículos al abrir el modal
   useEffect(() => {
@@ -64,19 +75,22 @@ export const EditDocumentModal = ({ document, onClose, onSuccess }: EditDocument
       });
       onSuccess();
     } catch (error) {
-      alert("Error al actualizar el documento");
+      toast.error("No se pudo guardar el documento. Intenta de nuevo.");
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      onMouseDown={(e) => e.target === e.currentTarget && !isSaving && onClose()}
+    >
       <div className="bg-[#0f0f0f] border border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden animate-fade-in">
         
         <div className="flex items-center justify-between p-6 border-b border-zinc-800">
           <h2 className="text-xl font-bold text-white">Editar Documento</h2>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors cursor-pointer">
+          <button onClick={onClose} aria-label="Cerrar" className="text-zinc-500 hover:text-white transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>

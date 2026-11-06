@@ -11,9 +11,14 @@ import { AdminUploadPage } from "@/modules/knowledge/pages/AdminUploadPage";
 import { AdminCategoriesPage } from "@/modules/knowledge/pages/AdminCategoriesPage";
 import { CategoryPage } from "@/modules/knowledge/pages/CategoryPage";
 
+import { Toaster } from "sonner";
+import { ConfirmDialogHost } from "@/shared/components/ui/ConfirmDialog";
+
 function App() {
   return (
     <BrowserRouter>
+      <Toaster theme="dark" position="bottom-right" richColors closeButton />
+      <ConfirmDialogHost />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<MainLayout />}>

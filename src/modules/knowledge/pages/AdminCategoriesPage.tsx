@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Folder, Pencil, Trash2, Plus, X, Loader2 } from 'lucide-react';
 import { getSidebarMenu, createCategory, updateCategory, deleteCategory } from '../services/knowledge.service';
 import { DynamicIcon } from '@/shared/components/ui/DynamicIcon';
+import { toast } from 'sonner';
+import { confirmDialog } from '@/shared/components/ui/ConfirmDialog';
 
 const AVAILABLE_ICONS = [
   { name: "Folder", label: "Carpeta Genérica" },
@@ -69,13 +71,47 @@ export const AdminCategoriesPage = () => {
     setParentId('');
   };
 
+  // IDs de todas las subcarpetas (hijos, nietos...) de una carpeta
+  const getDescendantIds = (id: string) => {
+    const idx = flatCategories.findIndex((c) => c.id === id);
+    if (idx === -1) return [] as string[];
+    const level = flatCategories[idx].level;
+    const ids: string[] = [];
+    for (let i = idx + 1; i < flatCategories.length && flatCategories[i].level > level; i++) {
+      ids.push(flatCategories[i].id);
+    }
+    return ids;
+  };
+
+  // Una carpeta no puede moverse dentro de sí misma ni de sus subcarpetas (crearía un ciclo)
+  const excludedParentIds = new Set<string>(
+    editingId ? [editingId, ...getDescendantIds(editingId)] : [],
+  );
+
   const handleDelete = async (id: string) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta categoría? Se eliminarán también sus sub-carpetas.")) return;
+    const cat = flatCategories.find((c) => c.id === id);
+    const subCount = getDescendantIds(id).length;
+    const ok = await confirmDialog({
+      title: "¿Eliminar esta carpeta?",
+      description: (
+        <>
+          Se eliminará <span className="text-white">“{cat?.name}”</span>
+          {subCount > 0 &&
+            ` junto con ${subCount} ${subCount === 1 ? "subcarpeta" : "subcarpetas"}`}
+          . Esta acción no se puede deshacer.
+        </>
+      ),
+      confirmLabel: "Eliminar carpeta",
+      tone: "danger",
+    });
+    if (!ok) return;
     try {
       await deleteCategory(id);
+      if (editingId === id || getDescendantIds(id).includes(editingId || "")) handleCancel();
+      toast.success("Carpeta eliminada");
       loadData();
     } catch (error) {
-      alert("Error al eliminar la categoría.");
+      toast.error("No se pudo eliminar la carpeta. Intenta de nuevo.");
     }
   };
 
@@ -89,10 +125,13 @@ export const AdminCategoriesPage = () => {
       } else {
         await createCategory(payload);
       }
+      toast.success(editingId ? "Carpeta actualizada" : "Carpeta creada");
       handleCancel();
       loadData();
     } catch (error: any) {
-      alert(`Error: ${error.response?.data?.error || "No se pudo guardar"}`);
+      toast.error("No se pudo guardar la carpeta.", {
+        description: error.response?.data?.error,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -153,7 +192,7 @@ export const AdminCategoriesPage = () => {
                 <option value="">Ninguna (Carpeta Principal)</option>
                 {flatCategories.map((cat) => (
                   // Evitamos que una categoría sea padre de sí misma
-                  cat.id !== editingId && (
+                  !excludedParentIds.has(cat.id) && (
                     <option key={cat.id} value={cat.id}>
                       {"\u00A0\u00A0".repeat(cat.level)} {cat.level > 0 ? '└ ' : ''}{cat.name}
                     </option>

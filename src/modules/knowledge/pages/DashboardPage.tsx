@@ -7,15 +7,10 @@ import {
   getSidebarMenu,
 } from "@/modules/knowledge/services/knowledge.service";
 import { DynamicIcon } from "@/shared/components/ui/DynamicIcon";
-import { FileViewerModal } from "@/shared/components/ui/FileViewerModal";
 
 export const DashboardPage = () => {
   const [rootCategories, setRootCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewerData, setViewerData] = useState<{
-    list: any[];
-    index: number;
-  } | null>(null);
   const [recentHistory, setRecentHistory] = useState<HistoryItem[]>([]);
   useEffect(() => {
     setRecentHistory(getHistory());
@@ -46,7 +41,7 @@ export const DashboardPage = () => {
               <Link
                 key={item.id}
                 to={item.url}
-                className="flex items-center gap-3 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded-xl p-3 min-w-50 transition-colors group"
+                className="flex items-center gap-3 bg-zinc-900/50 hover:bg-zinc-800 border border-zinc-800 hover:border-red-500/50 rounded-xl p-3 min-w-0 transition-colors group"
               >
                 <div className="w-10 h-10 bg-zinc-950 rounded-lg flex items-center justify-center text-zinc-400 group-hover:text-red-500 transition-colors shrink-0">
                   <DynamicIcon
@@ -80,16 +75,16 @@ export const DashboardPage = () => {
                 No hay carpetas principales creadas aún.
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
                 {rootCategories.map((cat) => (
                   <Link
                     key={cat.id}
                     to={`/category/${cat.id}`}
-                    className="block h-full"
+                    className="block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                   >
                     <CategoryCard
                       title={cat.name}
-                      description={cat.description || "Explorar documentos"}
+                      description={cat.description}
                       // Usamos el DynamicIcon leyendo el ícono de la BD
                       icon={
                         <DynamicIcon
@@ -107,13 +102,6 @@ export const DashboardPage = () => {
         </>
       )}
 
-      {viewerData && (
-        <FileViewerModal
-          files={viewerData.list}
-          initialIndex={viewerData.index}
-          onClose={() => setViewerData(null)}
-        />
-      )}
     </div>
   );
 };
